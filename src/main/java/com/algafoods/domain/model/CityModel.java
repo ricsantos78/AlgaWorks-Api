@@ -1,9 +1,14 @@
 package com.algafoods.domain.model;
 
+import com.algafoods.Groups;
 import lombok.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.groups.ConvertGroup;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
@@ -24,9 +29,13 @@ public class CityModel implements Serializable {
     @Column(name = "ID_CITY") // Nome da coluna no banco de dados
     private UUID id;
 
+    @NotBlank
     @Column(name = "NM_CITY", nullable = false) // Nome da coluna no banco de dados
     private String name; // Nome da cidade
 
+    @NotNull
+    @Valid
+    @ConvertGroup(to = Groups.StateID.class)
     @ManyToOne
     @JoinColumn(name = "ID_STATE") // Nome da coluna no banco de dados
     private StateModel state; // Estado da cidade

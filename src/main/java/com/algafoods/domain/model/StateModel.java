@@ -1,9 +1,12 @@
 package com.algafoods.domain.model;
 
+import com.algafoods.Groups;
 import lombok.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
@@ -19,11 +22,13 @@ public class StateModel implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    @NotNull(groups = Groups.StateID.class)
     @Id // Chave primária
     @GeneratedValue(strategy = GenerationType.AUTO) // Gerador de chave primária
     @Column(name = "ID_STATE") // Nome da coluna no banco de dados
     private UUID id;
 
+    @NotBlank
     @Column(name = "NM_STATE", nullable = false) // Nome da coluna no banco de dados
     private String name; // Nome do estado
 

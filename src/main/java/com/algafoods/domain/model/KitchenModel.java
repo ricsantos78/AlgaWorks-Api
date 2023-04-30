@@ -1,10 +1,16 @@
 package com.algafoods.domain.model;
 
+import com.algafoods.Groups;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -22,11 +28,13 @@ public class KitchenModel implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    @NotNull(groups = Groups.KitchenID.class)
     @Id // Chave primária
     @GeneratedValue(strategy = GenerationType.AUTO) // Gerador de chave primária
     @Column(name = "ID_KITCHEN") // Nome da coluna no banco de dados
     private UUID id;
 
+    @NotBlank
     @Column(name = "NM_KITCHEN", nullable = false, unique = true) // Nome da coluna no banco de dados
     private String name; // Nome da cozinha
 

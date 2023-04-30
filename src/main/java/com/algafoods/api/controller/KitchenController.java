@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,13 +41,13 @@ public class KitchenController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public KitchenModel save(@RequestBody KitchenModel kitchenModel){
+    public KitchenModel save(@RequestBody @Valid KitchenModel kitchenModel){
         return kitchenService.save(kitchenModel);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<KitchenModel> update(@PathVariable UUID id,
-                                               @RequestBody KitchenDto kitchenDto){
+                                               @RequestBody @Valid KitchenDto kitchenDto){
 
         var kitchenFindById = kitchenService.findById(id)
                 .orElseThrow(KitchenNotFoundException::new);

@@ -1,5 +1,6 @@
 package com.algafoods.domain.model;
 
+import com.algafoods.Groups;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +11,11 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
+import javax.validation.groups.ConvertGroup;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -35,13 +40,17 @@ public class RestaurantModel implements Serializable {
     @Column(name = "ID_RESTAURANT") // Nome da coluna no banco de dados
     private UUID id;
 
-    @NotNull
+    @NotBlank
     @Column(name = "NM_RESTAURANT", nullable = false) // Nome da coluna no banco de dados
     private String name; // Nome do restaurante
 
+    @PositiveOrZero
     @Column(name = "VL_FREIGHT", nullable = false) // Nome da coluna no banco de dados
     private BigDecimal freight; // Valor do frete
 
+    @Valid
+    @ConvertGroup(to = Groups.KitchenID.class)
+    @NotNull
     @ManyToOne() // Muitos restaurantes para uma cozinha
     @JoinColumn(name = "ID_KITCHEN", nullable = false)
     @ToString.Exclude // Nome da coluna no banco de dados

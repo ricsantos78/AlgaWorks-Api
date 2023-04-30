@@ -51,8 +51,9 @@ public class RestaurantController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public RestaurantModel save(@RequestBody @Valid RestaurantModel restaurantModel) {
-
+    public RestaurantModel save(
+            @RequestBody @Valid
+            RestaurantModel restaurantModel) {
         try {
             return restaurantService.save(restaurantModel);
         }catch (KitchenNotFoundException e){
@@ -62,7 +63,7 @@ public class RestaurantController {
 
     @PutMapping("/{id}")
     public ResponseEntity<RestaurantModel> update(@PathVariable UUID id,
-                                    @RequestBody RestaurantDto restaurantDto) {
+                                    @RequestBody @Valid RestaurantDto restaurantDto) {
         var restaurant = restaurantService.findById(id)
                 .orElseThrow(RestaurantNotFoundException::new);
 

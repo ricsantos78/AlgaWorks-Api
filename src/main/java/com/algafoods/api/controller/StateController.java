@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,13 +34,13 @@ public class StateController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public StateModel save(@RequestBody StateModel stateModel) {
+    public StateModel save(@RequestBody @Valid StateModel stateModel) {
         return stateService.save(stateModel);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<StateModel> update(@PathVariable UUID id,
-                                             @RequestBody StateDto stateDto) {
+                                             @RequestBody @Valid StateDto stateDto) {
         var stateNew = stateService.findById(id)
                 .orElseThrow(StateNotFoundException::new);
 

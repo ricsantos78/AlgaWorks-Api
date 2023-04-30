@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,7 +36,7 @@ public class CityController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CityModel save(@RequestBody CityModel cityModel){
+    public CityModel save(@RequestBody @Valid CityModel cityModel){
             try{
                 return cityService.save(cityModel);
             }catch (StateNotFoundException e){
@@ -46,7 +47,7 @@ public class CityController {
 
     @PutMapping("/{id}")
     public ResponseEntity<CityModel> update(@PathVariable UUID id
-    ,@RequestBody CityDto cityDto){
+    ,@RequestBody @Valid CityDto cityDto){
         var city = cityService.findById(id)
                 .orElseThrow(CityNotFoundException::new);
         CityModel cityModel = new CityModel();

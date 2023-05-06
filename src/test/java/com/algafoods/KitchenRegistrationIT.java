@@ -15,7 +15,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-class KitchenRegistrationIntegrationTest {
+class KitchenRegistrationIT {
 
     @Autowired
     private KitchenService kitchenService;

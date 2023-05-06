@@ -90,13 +90,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
-                    <includes>
-                        <include>**/*IT.*</include>
-                    </includes>
-                    <excludes>
-                        <exclude>**/*FunctionalTest.*</exclude>
-                        <exclude>**/*PerformanceTest.*</exclude>
-                    </excludes>
                     <testFailureIgnore>true</testFailureIgnore>
                 </configuration>
             </plugin>
@@ -112,16 +105,6 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <includes>
-                        <include>**/*IT.*</include>
-                    </includes>
-                    <excludes>
-                        <exclude>**/*(?!Functional)Test.*</exclude>
-                        <exclude>**/*IntegrationTest.*</exclude>
-                        <exclude>**/*PerformanceTest.*</exclude>
-                    </excludes>
-                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -1,6 +1,7 @@
 package com.algafoods;
 
 import com.algafoods.api.controller.KitchenController;
+import com.algafoods.api.dto.input.KitchenInputDto;
 import com.algafoods.domain.model.KitchenModel;
 import com.algafoods.util.DatabaseCleaner;
 import io.restassured.RestAssured;
@@ -141,11 +142,11 @@ class KitchenRegistrationIT {
 
 
     private void prepareData(){
-        KitchenModel kitchenModel1 = new KitchenModel();
+        KitchenInputDto kitchenModel1 = new KitchenInputDto();
         kitchenModel1.setName("Tailandesa");
         kitchenController.save(kitchenModel1);
 
-        KitchenModel kitchenModel2 = new KitchenModel();
+        KitchenInputDto kitchenModel2 = new KitchenInputDto();
         kitchenModel2.setName("Americana");
         kitchenController.save(kitchenModel2);
     }

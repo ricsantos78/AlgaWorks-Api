@@ -1,13 +1,13 @@
 package com.algafoods.api.controller;
 
-import com.algafoods.domain.dto.KitchenDto;
+import com.algafoods.api.assemblers.KitchenModelAssembler;
+import com.algafoods.api.assemblers.KitchenModelDisassembler;
+import com.algafoods.api.dto.KitchenDto;
+import com.algafoods.api.dto.input.KitchenInputDto;
 import com.algafoods.domain.exception.KitchenNotFoundException;
-import com.algafoods.domain.model.KitchenModel;
 import com.algafoods.domain.service.KitchenService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -21,48 +21,56 @@ public class KitchenController {
 
     private final KitchenService kitchenService;
 
+    private final KitchenModelAssembler kitchenModelAssembler;
+
+    private final KitchenModelDisassembler kitchenModelDisassembler;
+
     @GetMapping
-    public List<KitchenModel> findAll(){
-
-        return kitchenService.findAll();
-
+    @ResponseStatus(HttpStatus.OK)
+    public List<KitchenDto> findAll(){
+        var kitchenFindAll = kitchenService.findAll();
+        return kitchenFindAll.stream().map(kitchenModelAssembler::kitchenToModel).toList();
     }
 
     @GetMapping("/per-name")
-    public List<KitchenModel> findKitchenByName(String name){
-        return kitchenService.findByName(name);
+    @ResponseStatus(HttpStatus.OK)
+    public List<KitchenDto> findKitchenByName(String name){
+        var kitchenFindByName = kitchenService.findByName(name);
+        return kitchenFindByName.stream().map(kitchenModelAssembler::kitchenToModel).toList();
     }
 
     @GetMapping("/{id}")
-    public KitchenModel findById(@PathVariable UUID id){
-        return kitchenService.findById(id)
+    @ResponseStatus(HttpStatus.OK)
+    public KitchenDto findById(@PathVariable UUID id){
+         var kitchenFindById = kitchenService.findById(id)
                 .orElseThrow(KitchenNotFoundException::new);
+        return kitchenModelAssembler.kitchenToModel(kitchenFindById);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public KitchenModel save(@RequestBody @Valid KitchenModel kitchenModel){
-        return kitchenService.save(kitchenModel);
+    public KitchenDto save(@RequestBody @Valid KitchenInputDto kitchenInputDto){
+        var kitchenModel = kitchenModelDisassembler.kitchenModelDisassembler(kitchenInputDto);
+        return kitchenModelAssembler.kitchenToModel(kitchenService.save(kitchenModel));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<KitchenModel> update(@PathVariable UUID id,
-                                               @RequestBody @Valid KitchenDto kitchenDto){
+    @ResponseStatus(HttpStatus.OK)
+    public KitchenDto update(@PathVariable UUID id,
+                               @RequestBody @Valid KitchenInputDto kitchenInputDto){
 
         var kitchenFindById = kitchenService.findById(id)
                 .orElseThrow(KitchenNotFoundException::new);
 
-        KitchenModel kitchenModel = new KitchenModel();
-        BeanUtils.copyProperties(kitchenDto,kitchenModel);
-        kitchenModel.setId(kitchenFindById.getId());
-        return ResponseEntity.ok(kitchenService.save(kitchenModel));
+        kitchenModelDisassembler.kitchenCopyToProperties(kitchenInputDto,kitchenFindById);
+        return kitchenModelAssembler.kitchenToModel(kitchenService.save(kitchenFindById));
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id){
             var kitchenFindById = kitchenService.findById(id)
                     .orElseThrow(KitchenNotFoundException::new);
-
             kitchenService.delete(kitchenFindById);
     }
 

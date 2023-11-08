@@ -4,6 +4,7 @@ import com.algafoods.domain.model.enums.StatusOrder;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.io.Serial;
@@ -40,9 +41,14 @@ public class OrderModel implements Serializable {
     @Column(name = "VL_AMOUNT", nullable = false)
     private BigDecimal amount;
 
-    @CreationTimestamp
-    @Column(name = "DT_CRIATION", nullable = false)
-    private LocalDateTime creationDate;
+    @CreationTimestamp // Sempre que o registro for criado, vai ser atribuida data atual a variavel
+    @Column(name = "DT_REGISTRATION", nullable = false)
+    private LocalDateTime registrationDate;
+
+
+    @UpdateTimestamp // Sempre que o registro for atualizada, vai ser atribuida data atual a variavel
+    @Column(name = "DT_UPDATE", nullable = false)
+    private LocalDateTime updateDate;
 
     @Column(name = "DT_CONFIRMATION")
     private LocalDateTime confirmationDate;

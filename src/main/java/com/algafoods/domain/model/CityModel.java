@@ -1,16 +1,17 @@
 package com.algafoods.domain.model;
 
-import com.algafoods.Groups;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.groups.ConvertGroup;
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -29,16 +30,23 @@ public class CityModel implements Serializable {
     @Column(name = "ID_CITY") // Nome da coluna no banco de dados
     private UUID id;
 
-    @NotBlank
+
     @Column(name = "NM_CITY", nullable = false) // Nome da coluna no banco de dados
     private String name; // Nome da cidade
 
-    @NotNull
-    @Valid
-    @ConvertGroup(to = Groups.StateID.class)
+
     @ManyToOne
     @JoinColumn(name = "ID_STATE") // Nome da coluna no banco de dados
     private StateModel state; // Estado da cidade
+
+    @CreationTimestamp // Sempre que o registro for criado, vai ser atribuida data atual a variavel
+    @Column(name = "DT_REGISTRATION", nullable = false)
+    private OffsetDateTime registrationDate;
+
+
+    @UpdateTimestamp // Sempre que o registro for atualizada, vai ser atribuida data atual a variavel
+    @Column(name = "DT_UPDATE", nullable = false)
+    private OffsetDateTime updateDate;
 
     @Override
     public boolean equals(Object o) {

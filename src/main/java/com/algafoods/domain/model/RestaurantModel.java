@@ -1,7 +1,5 @@
 package com.algafoods.domain.model;
 
-import com.algafoods.Groups;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -11,11 +9,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PositiveOrZero;
-import javax.validation.groups.ConvertGroup;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -40,37 +33,34 @@ public class RestaurantModel implements Serializable {
     @Column(name = "ID_RESTAURANT") // Nome da coluna no banco de dados
     private UUID id;
 
-    @NotBlank
+
     @Column(name = "NM_RESTAURANT", nullable = false) // Nome da coluna no banco de dados
     private String name; // Nome do restaurante
 
-    @PositiveOrZero
+
     @Column(name = "VL_FREIGHT", nullable = false) // Nome da coluna no banco de dados
     private BigDecimal freight; // Valor do frete
 
-    @Valid
-    @ConvertGroup(to = Groups.KitchenID.class)
-    @NotNull
     @ManyToOne() // Muitos restaurantes para uma cozinha
     @JoinColumn(name = "ID_KITCHEN", nullable = false)
     @ToString.Exclude // Nome da coluna no banco de dados
     private KitchenModel kitchen; // Cozinha do restaurante
 
-    @JsonIgnore
+
     @CreationTimestamp // Sempre que o registro for criado, vai ser atribuida data atual a variavel
     @Column(name = "DT_REGISTRATION", nullable = false)
     private LocalDateTime registrationDate;
 
-    @JsonIgnore
+
     @UpdateTimestamp // Sempre que o registro for atualizada, vai ser atribuida data atual a variavel
     @Column(name = "DT_UPDATE", nullable = false)
     private LocalDateTime updateDate;
 
-    @JsonIgnore
+
     @Embedded
     private AddressModel address;
 
-    @JsonIgnore
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "TB_RESTAURANT_PAYMENT",
     joinColumns = @JoinColumn(name = "ID_RESTAURANT"),
@@ -78,7 +68,7 @@ public class RestaurantModel implements Serializable {
     @ToString.Exclude
     private List<PaymentModel> payments = new ArrayList<>();
 
-    @JsonIgnore // não vai sereliarizar quando quando ssubir a aplicacao
+
     @OneToMany(mappedBy = "restaurant")
     @ToString.Exclude
     private List<ProductModel> product = new ArrayList<>();

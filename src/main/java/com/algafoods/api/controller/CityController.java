@@ -1,15 +1,15 @@
 package com.algafoods.api.controller;
 
-import com.algafoods.domain.dto.CityDto;
+import com.algafoods.api.assemblers.CityModelAssembler;
+import com.algafoods.api.assemblers.CityModelDisassembler;
+import com.algafoods.api.dto.CityDto;
+import com.algafoods.api.dto.input.CityInputDto;
 import com.algafoods.domain.exception.BusinessException;
 import com.algafoods.domain.exception.CityNotFoundException;
 import com.algafoods.domain.exception.StateNotFoundException;
-import com.algafoods.domain.model.CityModel;
 import com.algafoods.domain.service.CityService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -23,38 +23,44 @@ public class CityController {
 
     private final CityService cityService;
 
+    private final CityModelAssembler cityModelAssembler;
+
+    private final CityModelDisassembler cityModelDisassembler;
+
     @GetMapping
-    public List<CityModel> findAll(){
-        return cityService.findAll();
+    public List<CityDto> findAll(){
+        var cityModel = cityService.findAll();
+        return cityModel.stream().map(cityModelAssembler::cityToModel).toList();
     }
 
     @GetMapping("/{id}")
-    public CityModel findById(@PathVariable UUID id){
-         return cityService.findById(id)
+    public CityDto findById(@PathVariable UUID id){
+          var cityModel = cityService.findById(id)
                  .orElseThrow(CityNotFoundException::new);
+
+        return cityModelAssembler.cityToModel(cityModel);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CityModel save(@RequestBody @Valid CityModel cityModel){
+    public CityDto save(@RequestBody @Valid CityInputDto cityInputDto){
             try{
-                return cityService.save(cityModel);
+                var cityModel = cityModelDisassembler.cityModelToDisassembler(cityInputDto);
+                return cityModelAssembler.cityToModel(cityService.save(cityModel));
             }catch (StateNotFoundException e){
                 throw new BusinessException(e.getMessage(), e);
             }
-
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CityModel> update(@PathVariable UUID id
-    ,@RequestBody @Valid CityDto cityDto){
-        var city = cityService.findById(id)
+    @ResponseStatus(HttpStatus.OK)
+    public CityDto update(@PathVariable UUID id
+    ,@RequestBody @Valid CityInputDto cityInputDto){
+        var cityFindById = cityService.findById(id)
                 .orElseThrow(CityNotFoundException::new);
-        CityModel cityModel = new CityModel();
-        BeanUtils.copyProperties(cityDto, cityModel);
-        cityModel.setId(city.getId());
         try {
-            return ResponseEntity.ok(cityService.save(cityModel));
+            cityModelDisassembler.cityCopyToProperties(cityInputDto,cityFindById);
+            return cityModelAssembler.cityToModel(cityService.save(cityFindById));
         }catch (StateNotFoundException e){
             throw new BusinessException(e.getMessage(), e);
         }

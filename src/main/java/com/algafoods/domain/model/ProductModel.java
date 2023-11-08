@@ -4,11 +4,14 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -39,6 +42,15 @@ public class ProductModel implements Serializable {
 
     @Column(name = "VL_STATUS", nullable = false)
     private Boolean status = Boolean.TRUE;
+
+    @CreationTimestamp // Sempre que o registro for criado, vai ser atribuida data atual a variavel
+    @Column(name = "DT_REGISTRATION", nullable = false)
+    private LocalDateTime registrationDate;
+
+
+    @UpdateTimestamp // Sempre que o registro for atualizada, vai ser atribuida data atual a variavel
+    @Column(name = "DT_UPDATE", nullable = false)
+    private LocalDateTime updateDate;
 
     @ManyToOne // Muitos restaurantes para uma cozinha
     @JoinColumn(name = "ID_RESTAURANT", nullable = false) // Nome da coluna no banco de dados

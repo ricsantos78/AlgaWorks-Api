@@ -2,11 +2,14 @@ package com.algafoods.domain.model;
 
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -41,6 +44,15 @@ public class OrderItemsModel implements Serializable {
     @ManyToOne
     @JoinColumn(name = "ID_ORDER", nullable = false)
     private OrderModel order;
+
+    @CreationTimestamp // Sempre que o registro for criado, vai ser atribuida data atual a variavel
+    @Column(name = "DT_REGISTRATION", nullable = false)
+    private LocalDateTime registrationDate;
+
+
+    @UpdateTimestamp // Sempre que o registro for atualizada, vai ser atribuida data atual a variavel
+    @Column(name = "DT_UPDATE", nullable = false)
+    private LocalDateTime updateDate;
 
 
     @Override

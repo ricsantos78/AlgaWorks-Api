@@ -1,13 +1,13 @@
 package com.algafoods.api.controller;
 
-import com.algafoods.domain.dto.StateDto;
+import com.algafoods.api.assemblers.StateModelAssembler;
+import com.algafoods.api.assemblers.StateModelDisassembler;
+import com.algafoods.api.dto.StateDto;
+import com.algafoods.api.dto.input.StateInputDto;
 import com.algafoods.domain.exception.StateNotFoundException;
-import com.algafoods.domain.model.StateModel;
 import com.algafoods.domain.service.StateService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -21,39 +21,49 @@ public class StateController {
 
     private final StateService stateService;
 
+    private final StateModelAssembler stateModelAssembler;
+
+    private final StateModelDisassembler stateModelDisassembler;
+
     @GetMapping
-    public List<StateModel> findAll() {
-        return stateService.findAll();
+    @ResponseStatus(HttpStatus.OK)
+    public List<StateDto> findAll() {
+        var stateModel = stateService.findAll();
+        return stateModel.stream().map(stateModelAssembler::stateToModel).toList();
     }
 
     @GetMapping("/{id}")
-    public StateModel findById(@PathVariable UUID id) {
-        return stateService.findById(id)
+    @ResponseStatus(HttpStatus.OK)
+    public StateDto findById(@PathVariable UUID id) {
+         var stateFindById = stateService.findById(id)
                 .orElseThrow(StateNotFoundException::new);
+        return stateModelAssembler.stateToModel(stateFindById);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public StateModel save(@RequestBody @Valid StateModel stateModel) {
-        return stateService.save(stateModel);
+    public StateDto save(@RequestBody @Valid StateInputDto stateInputDto) {
+        var stateModel = stateModelDisassembler.stateToDisassemblerModel(stateInputDto);
+        return stateModelAssembler.stateToModel(stateService.save(stateModel));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<StateModel> update(@PathVariable UUID id,
-                                             @RequestBody @Valid StateDto stateDto) {
-        var stateNew = stateService.findById(id)
+    @ResponseStatus(HttpStatus.OK)
+    public StateDto update(@PathVariable UUID id,
+                                             @RequestBody @Valid StateInputDto stateInputDto) {
+        var stateFindById = stateService.findById(id)
                 .orElseThrow(StateNotFoundException::new);
 
-        StateModel state = new StateModel();
-        BeanUtils.copyProperties(stateDto, state);
-        state.setId(stateNew.getId());
-        return ResponseEntity.ok(stateService.save(state));
+        stateModelDisassembler.stateCopyToProperties(stateInputDto,stateFindById);
+        return stateModelAssembler.stateToModel(stateService.save(stateFindById));
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
             var state = stateService.findById(id)
                     .orElseThrow(StateNotFoundException::new);
+
             stateService.delete(state);
     }
 }

@@ -1,6 +1,10 @@
 package com.algafoods.api.controller;
 
-import com.algafoods.domain.dto.RestaurantDto;
+import com.algafoods.api.assemblers.RestaurantModelAssembler;
+import com.algafoods.api.assemblers.RestaurantModelDisassembler;
+import com.algafoods.api.dto.RestaurantDto;
+import com.algafoods.api.dto.input.KitchenIdInput;
+import com.algafoods.api.dto.input.RestaurantInputDto;
 import com.algafoods.domain.exception.BusinessException;
 import com.algafoods.domain.exception.KitchenNotFoundException;
 import com.algafoods.domain.exception.RestaurantNotFoundException;
@@ -10,9 +14,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.ReflectionUtils;
@@ -32,50 +34,49 @@ import java.util.UUID;
 public class RestaurantController {
 
     private final RestaurantService restaurantService;
+    private final RestaurantModelAssembler restaurantModelAssembler;
+    private final RestaurantModelDisassembler restaurantModelDisassembler;
 
     @GetMapping
-    public List<RestaurantModel> findAll() {
-        return restaurantService.findAll();
+    public List<RestaurantDto> findAll() {
+        var restaurants = restaurantService.findAll();
+        return restaurants.stream().map(restaurantModelAssembler::restaurantToModel).toList();
     }
 
     @GetMapping("/per-rate")
-    public List<RestaurantModel> findByFreightBetween(BigDecimal initialRate, BigDecimal finalRate) {
-        return restaurantService.findByFreightBetween(initialRate,finalRate);
+    public List<RestaurantDto> findByFreightBetween(BigDecimal initialRate, BigDecimal finalRate) {
+         var restaurants = restaurantService.findByFreightBetween(initialRate,finalRate);
+        return restaurants.stream().map(restaurantModelAssembler::restaurantToModel).toList();
     }
 
     @GetMapping("/{id}")
-    public RestaurantModel findById(@PathVariable UUID id) {
-        return restaurantService.findById(id)
-                .orElseThrow(RestaurantNotFoundException::new);
+    public RestaurantDto findById(@PathVariable UUID id) {
+        var restaurantFindById = restaurantService.findById(id).orElseThrow(RestaurantNotFoundException::new);
+        return restaurantModelAssembler.restaurantToModel(restaurantFindById);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public RestaurantModel save(
+    public RestaurantDto save(
             @RequestBody @Valid
-            RestaurantModel restaurantModel) {
+            RestaurantInputDto restaurantInputDto) {
         try {
-            return restaurantService.save(restaurantModel);
+            var restaurant = restaurantModelDisassembler.toDomainObject(restaurantInputDto);
+            return restaurantModelAssembler.restaurantToModel(restaurantService.save(restaurant));
         }catch (KitchenNotFoundException e){
             throw new BusinessException(e.getMessage(), e);
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RestaurantModel> update(@PathVariable UUID id,
-                                    @RequestBody @Valid RestaurantDto restaurantDto) {
-        var restaurant = restaurantService.findById(id)
+    @ResponseStatus(HttpStatus.OK)
+    public RestaurantDto update(@PathVariable UUID id,
+                                    @RequestBody @Valid RestaurantInputDto restaurantInputDto) {
+        var restaurantFindById = restaurantService.findById(id)
                 .orElseThrow(RestaurantNotFoundException::new);
-
-            RestaurantModel restaurantModel = new RestaurantModel();
-            BeanUtils.copyProperties(restaurantDto, restaurantModel);
-            restaurantModel.setId(restaurant.getId());
-            restaurantModel.setAddress(restaurant.getAddress());
-            restaurantModel.setPayments(restaurant.getPayments());
-            restaurantModel.setRegistrationDate(restaurant.getRegistrationDate());
             try{
-                var restaurantNew = restaurantService.save(restaurantModel);
-                return ResponseEntity.ok(restaurantNew);
+                restaurantModelDisassembler.copyToDomainObject(restaurantInputDto, restaurantFindById);
+                return restaurantModelAssembler.restaurantToModel(restaurantService.save(restaurantFindById));
             }catch (KitchenNotFoundException e){
                 throw new BusinessException(e.getMessage(),e);
             }
@@ -89,25 +90,28 @@ public class RestaurantController {
                     .orElseThrow(RestaurantNotFoundException::new);
 
             restaurantService.delete(restaurant);
-
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<RestaurantModel> partiallyUpdate(@PathVariable UUID id
+    @ResponseStatus(HttpStatus.OK)
+    public RestaurantDto partiallyUpdate(@PathVariable UUID id
     , @RequestBody Map<String, Object> fields, HttpServletRequest request){
 
         var restaurant = restaurantService.findById(id)
                 .orElseThrow(RestaurantNotFoundException::new);
 
-
         merge(fields, restaurant,request);
-        RestaurantDto restaurantDto = new RestaurantDto();
-        BeanUtils.copyProperties(restaurant, restaurantDto);
-        return update(id,restaurantDto);
+        var restaurantInputDto = new RestaurantInputDto();
+        restaurantInputDto.setName(restaurant.getName());
+        restaurantInputDto.setFreight(restaurant.getFreight());
+        var kitchenInputDto = new KitchenIdInput();
+        kitchenInputDto.setId(restaurant.getKitchen().getId());
+        restaurantInputDto.setKitchen(kitchenInputDto);
+        return update(id,restaurantInputDto);
     }
 
     private void merge(
-            Map<String, Object> sourceFild
+            Map<String, Object> sourceFile
             , RestaurantModel restaurantModel
             ,HttpServletRequest request){
 
@@ -116,13 +120,12 @@ public class RestaurantController {
         objectMapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,true);
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,true);
 
-        RestaurantModel restaurantSource = objectMapper.convertValue(sourceFild, RestaurantModel.class);
-        sourceFild.forEach((nameProperty, valueProperty) -> {
+        RestaurantModel restaurantSource = objectMapper.convertValue(sourceFile, RestaurantModel.class);
+           sourceFile.forEach((nameProperty, valueProperty) -> {
             Field field = ReflectionUtils.findField(RestaurantModel.class, nameProperty);
             assert field != null;
             field.setAccessible(true);
             Object newValue = ReflectionUtils.getField(field, restaurantSource);
-            //System.out.println(nameProperty+ " = " + valueProperty + " = " + newValue);
             ReflectionUtils.setField(field, restaurantModel,newValue);
         });
     }catch (IllegalArgumentException e){

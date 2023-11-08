@@ -3,6 +3,7 @@ package com.algafoods.domain.model;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.io.Serial;
@@ -36,9 +37,14 @@ public class UserModel implements Serializable {
     @Column(name = "DS_PASSWORD", nullable = false) // Nome da coluna no banco de dados
     private String password; // Senha do usuário
 
-    @CreationTimestamp
-    @Column(name = "DT_REGISTRATION", nullable = false) // Nome da coluna no banco de dados
-    private LocalDateTime registrationDate; // Data de registro do usuário
+    @CreationTimestamp // Sempre que o registro for criado, vai ser atribuida data atual a variavel
+    @Column(name = "DT_REGISTRATION", nullable = false)
+    private LocalDateTime registrationDate;
+
+
+    @UpdateTimestamp // Sempre que o registro for atualizada, vai ser atribuida data atual a variavel
+    @Column(name = "DT_UPDATE", nullable = false)
+    private LocalDateTime updateDate;
 
     @ManyToMany
     @JoinTable(name = "TB_USER_GROUP",

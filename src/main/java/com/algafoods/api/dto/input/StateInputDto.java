@@ -1,12 +1,11 @@
-package com.algafoods.domain.dto;
+package com.algafoods.api.dto.input;
 
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
 @Data
-public class StateDto {
-
+public class StateInputDto {
     @NotBlank
     private String name;
 }

@@ -24,7 +24,7 @@ public interface RestaurantService {
 
     List<RestaurantModel> findTop2ByNameContaining (String name);
 
-    public List<RestaurantModel> find(String name,
+    List<RestaurantModel> find(String name,
                                       BigDecimal initialRate,
                                       BigDecimal finalRate);
 

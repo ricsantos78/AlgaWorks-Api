@@ -28,32 +28,34 @@ public class CityModel implements Serializable {
     @Id // Chave primária
     @GeneratedValue(strategy = GenerationType.AUTO) // Gerador de chave primária
     @Column(name = "ID_CITY") // Nome da coluna no banco de dados
-    private UUID id;
+    private UUID idCity;
 
+    @Column(name = "CD_CITY", nullable = false, unique = true) // Nome da coluna no banco de dados
+    private Long cdCity;
 
     @Column(name = "NM_CITY", nullable = false) // Nome da coluna no banco de dados
-    private String name; // Nome da cidade
+    private String nmCity; // Nome da cidade
 
 
     @ManyToOne
-    @JoinColumn(name = "ID_STATE") // Nome da coluna no banco de dados
+    @JoinColumn(name = "CD_STATE" ,referencedColumnName = "CD_STATE") // Nome da coluna no banco de dados
     private StateModel state; // Estado da cidade
 
     @CreationTimestamp // Sempre que o registro for criado, vai ser atribuida data atual a variavel
     @Column(name = "DT_REGISTRATION", nullable = false)
-    private OffsetDateTime registrationDate;
+    private OffsetDateTime dtRegistration;
 
 
     @UpdateTimestamp // Sempre que o registro for atualizada, vai ser atribuida data atual a variavel
     @Column(name = "DT_UPDATE", nullable = false)
-    private OffsetDateTime updateDate;
+    private OffsetDateTime dtUpdate;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         CityModel cityModel = (CityModel) o;
-        return id != null && Objects.equals(id, cityModel.id);
+        return idCity != null && Objects.equals(idCity, cityModel.idCity);
     }
 
     @Override

@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
@@ -33,47 +32,41 @@ public class CityController {
         return cityModel.stream().map(cityModelAssembler::cityToModel).toList();
     }
 
-    @GetMapping("/{id}")
-    public CityDto findById(@PathVariable UUID id){
-          var cityModel = cityService.findById(id)
-                 .orElseThrow(CityNotFoundException::new);
-
-        return cityModelAssembler.cityToModel(cityModel);
+    @GetMapping("/{cdCity}")
+    public CityDto findById(@PathVariable Long cdCity){
+        return cityModelAssembler.cityToModel(cityService.findByCdCity(cdCity)
+                .orElseThrow(CityNotFoundException::new));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CityDto save(@RequestBody @Valid CityInputDto cityInputDto){
             try{
-                var cityModel = cityModelDisassembler.cityModelToDisassembler(cityInputDto);
-                return cityModelAssembler.cityToModel(cityService.save(cityModel));
+                return cityModelAssembler.cityToModel(cityService.save(cityModelDisassembler.cityModelToDisassembler(cityInputDto)));
             }catch (StateNotFoundException e){
                 throw new BusinessException(e.getMessage(), e);
             }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{cdCity}")
     @ResponseStatus(HttpStatus.OK)
-    public CityDto update(@PathVariable UUID id
+    public CityDto update(@PathVariable Long cdCity
     ,@RequestBody @Valid CityInputDto cityInputDto){
-        var cityFindById = cityService.findById(id)
+        var cityModel = cityService.findByCdCity(cdCity)
                 .orElseThrow(CityNotFoundException::new);
         try {
-            cityModelDisassembler.cityCopyToProperties(cityInputDto,cityFindById);
-            return cityModelAssembler.cityToModel(cityService.save(cityFindById));
+            cityModelDisassembler.cityCopyToProperties(cityInputDto,cityModel);
+            return cityModelAssembler.cityToModel(cityService.save(cityModel));
         }catch (StateNotFoundException e){
             throw new BusinessException(e.getMessage(), e);
         }
 
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{cdCity}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID id){
-           var city = cityService.findById(id)
-                   .orElseThrow(CityNotFoundException::new);
-           cityService.delete(city);
+    public void delete(@PathVariable Long cdCity){
+           cityService.delete(cityService.findByCdCity(cdCity)
+                   .orElseThrow(CityNotFoundException::new));
     }
-
-
 }

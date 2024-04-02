@@ -31,11 +31,14 @@ public class KitchenModel implements Serializable {
     @Id // Chave primária
     @GeneratedValue(strategy = GenerationType.AUTO) // Gerador de chave primária
     @Column(name = "ID_KITCHEN") // Nome da coluna no banco de dados
-    private UUID id;
+    private UUID idKitchen;
+
+    @Column(name = "CD_KITCHEN", nullable = false, unique = true) // Nome da coluna no banco de dados
+    private Long cdKitchen;
 
 
     @Column(name = "NM_KITCHEN", nullable = false, unique = true) // Nome da coluna no banco de dados
-    private String name; // Nome da cozinha
+    private String nmKitchen; // Nome da cozinha
 
     @OneToMany(mappedBy = "kitchen")
     @ToString.Exclude
@@ -43,19 +46,19 @@ public class KitchenModel implements Serializable {
 
     @CreationTimestamp // Sempre que o registro for criado, vai ser atribuida data atual a variavel
     @Column(name = "DT_REGISTRATION", nullable = false)
-    private LocalDateTime registrationDate;
+    private LocalDateTime dtRegistration;
 
 
     @UpdateTimestamp // Sempre que o registro for atualizada, vai ser atribuida data atual a variavel
     @Column(name = "DT_UPDATE", nullable = false)
-    private LocalDateTime updateDate;
+    private LocalDateTime dtUpdate;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         KitchenModel that = (KitchenModel) o;
-        return id != null && Objects.equals(id, that.id);
+        return idKitchen != null && Objects.equals(idKitchen, that.idKitchen);
     }
 
     @Override

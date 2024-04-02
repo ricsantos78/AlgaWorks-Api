@@ -30,51 +30,54 @@ public class OrderModel implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ID_ORDER")
-    private UUID id;
+    private UUID idOrder;
+
+    @Column(name = "CD_ORDER", nullable = false, unique = true)
+    private Long cdOrder;
 
     @Column(name = "VL_SUBTOTAL", nullable = false)
-    private BigDecimal subtotal;
+    private BigDecimal vlSubtotal;
 
     @Column(name = "VL_FREIGHTRATE", nullable = false)
-    private BigDecimal freightRate;
+    private BigDecimal vlFreightRate;
 
     @Column(name = "VL_AMOUNT", nullable = false)
-    private BigDecimal amount;
+    private BigDecimal vlAmount;
 
     @CreationTimestamp // Sempre que o registro for criado, vai ser atribuida data atual a variavel
     @Column(name = "DT_REGISTRATION", nullable = false)
-    private LocalDateTime registrationDate;
+    private LocalDateTime dtRegistration;
 
 
     @UpdateTimestamp // Sempre que o registro for atualizada, vai ser atribuida data atual a variavel
     @Column(name = "DT_UPDATE", nullable = false)
-    private LocalDateTime updateDate;
+    private LocalDateTime dtUpdate;
 
     @Column(name = "DT_CONFIRMATION")
-    private LocalDateTime confirmationDate;
+    private LocalDateTime dtConfirmation;
 
     @Column(name = "DT_CANCEL")
-    private LocalDateTime cancelDate;
+    private LocalDateTime dtCancel;
 
     @Column(name = "DT_DELIVERY")
-    private LocalDateTime deliveryDate;
+    private LocalDateTime dtDelivery;
 
     @Column(name = "NM_STATUS")
-    private StatusOrder status;
+    private StatusOrder nmStatus;
 
     @Embedded
     private AddressModel address;
 
     @ManyToOne
-    @JoinColumn(name = "ID_USER", nullable = false)
+    @JoinColumn(name = "CD_USER",referencedColumnName = "CD_USER", nullable = false)
     private UserModel user;
 
     @ManyToOne
-    @JoinColumn(name = "ID_RESTAURANT", nullable = false)
+    @JoinColumn(name = "CD_RESTAURANT", referencedColumnName = "CD_RESTAURANT",nullable = false)
     private RestaurantModel restaurant;
 
     @ManyToOne
-    @JoinColumn(name = "ID_PAYMENT", nullable = false)
+    @JoinColumn(name = "CD_PAYMENT", referencedColumnName = "CD_PAYMENT",nullable = false)
     private PaymentModel payment;
 
     @OneToMany(mappedBy = "order")
@@ -86,7 +89,7 @@ public class OrderModel implements Serializable {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         OrderModel that = (OrderModel) o;
-        return id != null && Objects.equals(id, that.id);
+        return idOrder != null && Objects.equals(idOrder, that.idOrder);
     }
 
     @Override

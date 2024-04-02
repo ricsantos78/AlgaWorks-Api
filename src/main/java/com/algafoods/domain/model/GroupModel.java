@@ -28,33 +28,36 @@ public class GroupModel implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ID_GROUP")
-    private UUID id;
+    private UUID idGroup;
+
+    @Column(name = "CD_GROUP", nullable = false, unique = true)
+    private Long cdGroup;
 
     @Column(name = "NM_GROUP", nullable = false)
-    private String name;
+    private String nmGroup;
 
     @ManyToMany
     @JoinTable(name = "TB_GROUP_PERMISSION",
-    joinColumns = @JoinColumn(name = "ID_GROUP"),
-    inverseJoinColumns = @JoinColumn(name = "ID_PERMISSION"))
+    joinColumns = @JoinColumn(name = "CD_GROUP"),
+    inverseJoinColumns = @JoinColumn(name = "CD_PERMISSION"))
     @ToString.Exclude
     private List<PermissionModel> permissions = new ArrayList<>();
 
     @CreationTimestamp // Sempre que o registro for criado, vai ser atribuida data atual a variavel
     @Column(name = "DT_REGISTRATION", nullable = false)
-    private LocalDateTime registrationDate;
+    private LocalDateTime dtRegistration;
 
 
     @UpdateTimestamp // Sempre que o registro for atualizada, vai ser atribuida data atual a variavel
     @Column(name = "DT_UPDATE", nullable = false)
-    private LocalDateTime updateDate;
+    private LocalDateTime dtUpdate;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         GroupModel that = (GroupModel) o;
-        return id != null && Objects.equals(id, that.id);
+        return idGroup != null && Objects.equals(idGroup, that.idGroup);
     }
 
     @Override

@@ -27,22 +27,25 @@ public class OrderItemsModel implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ID_ORDER_ITEM")
-    private UUID id;
+    private UUID idOrderItem;
+
+    @Column(name = "CD_ORDER_ITEM", nullable = false, unique = true)
+    private Long cdOrderItem;
 
     @Column(name = "VL_QUANTITY", nullable = false)
-    private Integer quantity;
+    private Integer vlQuantity;
 
     @Column(name = "VL_UNITARY", nullable = false)
-    private BigDecimal unitaryValue;
+    private BigDecimal vlUnitary;
 
     @Column(name = "VL_TOTAL", nullable = false)
-    private BigDecimal totalValue;
+    private BigDecimal vlTotal;
 
     @Column(name = "VL_OBSERVATION")
-    private String observation;
+    private String tsObservation;
 
     @ManyToOne
-    @JoinColumn(name = "ID_ORDER", nullable = false)
+    @JoinColumn(name = "CD_ORDER", referencedColumnName = "CD_ORDER",nullable = false)
     private OrderModel order;
 
     @CreationTimestamp // Sempre que o registro for criado, vai ser atribuida data atual a variavel
@@ -60,7 +63,7 @@ public class OrderItemsModel implements Serializable {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         OrderItemsModel that = (OrderItemsModel) o;
-        return id != null && Objects.equals(id, that.id);
+        return idOrderItem != null && Objects.equals(idOrderItem, that.idOrderItem);
     }
 
     @Override

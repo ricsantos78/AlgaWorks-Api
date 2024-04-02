@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/states")
@@ -32,38 +31,35 @@ public class StateController {
         return stateModel.stream().map(stateModelAssembler::stateToModel).toList();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{cdState}")
     @ResponseStatus(HttpStatus.OK)
-    public StateDto findById(@PathVariable UUID id) {
-         var stateFindById = stateService.findById(id)
-                .orElseThrow(StateNotFoundException::new);
-        return stateModelAssembler.stateToModel(stateFindById);
+    public StateDto findById(@PathVariable Long cdState) {
+        return stateModelAssembler.stateToModel(stateService.findByCdState(cdState)
+                .orElseThrow(StateNotFoundException::new));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public StateDto save(@RequestBody @Valid StateInputDto stateInputDto) {
-        var stateModel = stateModelDisassembler.stateToDisassemblerModel(stateInputDto);
-        return stateModelAssembler.stateToModel(stateService.save(stateModel));
+        return stateModelAssembler.stateToModel
+                (stateService.save(stateModelDisassembler.stateToDisassemblerModel(stateInputDto)));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{cdState}")
     @ResponseStatus(HttpStatus.OK)
-    public StateDto update(@PathVariable UUID id,
+    public StateDto update(@PathVariable Long cdState,
                                              @RequestBody @Valid StateInputDto stateInputDto) {
-        var stateFindById = stateService.findById(id)
+        var stateFindById = stateService.findByCdState(cdState)
                 .orElseThrow(StateNotFoundException::new);
 
         stateModelDisassembler.stateCopyToProperties(stateInputDto,stateFindById);
         return stateModelAssembler.stateToModel(stateService.save(stateFindById));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{cdState}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID id) {
-            var state = stateService.findById(id)
-                    .orElseThrow(StateNotFoundException::new);
-
-            stateService.delete(state);
+    public void delete(@PathVariable Long cdState) {
+            stateService.delete(stateService.findByCdState(cdState)
+                    .orElseThrow(StateNotFoundException::new));
     }
 }

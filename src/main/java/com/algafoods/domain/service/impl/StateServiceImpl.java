@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,12 +23,15 @@ public class StateServiceImpl implements StateService {
     }
 
     @Override
-    public Optional<StateModel> findById(UUID id) {
-        return stateRepository.findById(id);
+    public Optional<StateModel> findByCdState(long cdState) {
+        return stateRepository.findByCdState(cdState);
     }
 
     @Override
     public StateModel save(StateModel stateModel) {
+        if(stateModel.getCdState() == null){
+            stateModel.setCdState(findMaxCdState());
+        }
         return stateRepository.save(stateModel);
     }
 
@@ -40,8 +42,13 @@ public class StateServiceImpl implements StateService {
         }catch (DataIntegrityViolationException e){
             throw new EntityInUseException(
                     String.format("Estado %s não pode ser removida, pois esta em uso"
-                            , stateModel.getName())
+                            , stateModel.getNmState())
             );
         }
+    }
+
+    public Long findMaxCdState(){
+        var maxCdState = stateRepository.findMaxCdState();
+        return maxCdState != null ? maxCdState + 1 : 1;
     }
 }

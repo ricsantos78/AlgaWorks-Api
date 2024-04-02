@@ -6,13 +6,12 @@ import org.springframework.data.jpa.domain.Specification;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 public interface RestaurantService {
 
     List<RestaurantModel> findAll();
 
-    Optional<RestaurantModel> findById(UUID id);
+    Optional<RestaurantModel> findByCdRestaurant(Long cdRestaurant);
 
     RestaurantModel save(RestaurantModel restaurantModel);
 
@@ -29,4 +28,12 @@ public interface RestaurantService {
                                       BigDecimal finalRate);
 
     List<RestaurantModel> findAll(Specification<RestaurantModel> name);
+
+    void ativar(Long cdRestaurant);
+
+    void inativar(Long cdRestaurant);
+
+    void removePayments(Long cdRestaurant, Long cdPayment);
+
+    void addPayments(Long cdRestaurant, Long cdPayment);
 }

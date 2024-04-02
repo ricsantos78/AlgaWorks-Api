@@ -29,7 +29,7 @@ public class AddressModel implements Serializable {
     private String district;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "address_city_id")
+    @JoinColumn(name = "CD_CITY", referencedColumnName = "CD_CITY")
     private CityModel city;
 
 }

@@ -3,14 +3,15 @@ package com.algafoods.api.dto;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Data
 public class RestaurantDto {
 
-    private UUID id;
-    private String name;
+    private Long cdRestaurant;
+    private String nmRestaurant;
     private BigDecimal valorFrete;
     private KitchenDto kitchen;
+    private Boolean ativo;
+    private AddressDto address;
 
 }

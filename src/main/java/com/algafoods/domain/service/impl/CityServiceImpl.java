@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -28,17 +27,19 @@ public class CityServiceImpl implements CityService {
     }
 
     @Override
-    public Optional<CityModel> findById(UUID id) {
-        return cityRepository.findById(id);
+    public Optional<CityModel> findByCdCity(Long cdCity) {
+        return cityRepository.findByCdCity(cdCity);
     }
 
     @Override
     public CityModel save(CityModel cityModel) {
-        var stateId = cityModel.getState().getId();
-        var state = stateRepository.findById(stateId)
+        var cdState = cityModel.getState().getCdState();
+        var stateModel = stateRepository.findByCdState(cdState)
                 .orElseThrow(StateNotFoundException::new);
-
-        cityModel.setState(state);
+        if(cityModel.getCdCity() == null) {
+            cityModel.setCdCity(findNextCdCity());
+        }
+        cityModel.setState(stateModel);
         return cityRepository.save(cityModel);
     }
 
@@ -49,9 +50,14 @@ public class CityServiceImpl implements CityService {
         }catch (DataIntegrityViolationException e){
             throw new EntityInUseException(
                     String.format("Cidade %s  não pode ser removida, pois está em uso"
-                    , cityModel.getName())
+                    , cityModel.getNmCity())
             );
         }
+    }
+
+    public Long findNextCdCity(){
+        var maxCdCity = cityRepository.findMaxCdCity();
+        return maxCdCity != null ? maxCdCity + 1 : 1;
     }
 
 

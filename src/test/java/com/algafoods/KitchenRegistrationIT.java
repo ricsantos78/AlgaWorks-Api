@@ -143,11 +143,11 @@ class KitchenRegistrationIT {
 
     private void prepareData(){
         KitchenInputDto kitchenModel1 = new KitchenInputDto();
-        kitchenModel1.setName("Tailandesa");
+        kitchenModel1.setNmKitchen("Tailandesa");
         kitchenController.save(kitchenModel1);
 
         KitchenInputDto kitchenModel2 = new KitchenInputDto();
-        kitchenModel2.setName("Americana");
+        kitchenModel2.setNmKitchen("Americana");
         kitchenController.save(kitchenModel2);
     }
 }

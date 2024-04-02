@@ -28,26 +28,29 @@ public class PaymentModel implements Serializable {
     @Id // Chave primária
     @GeneratedValue(strategy = GenerationType.AUTO) // Gerador de chave primária
     @Column(name = "ID_PAYMENT") // Nome da coluna no banco de dados
-    private UUID id;
+    private UUID idPayment;
+
+    @Column(name = "CD_PAYMENT", nullable = false, unique = true) // Nome da coluna no banco de dados
+    private Long cdPayment; // Código do pagamento
 
     @Column(name = "NM_PAYMENT", nullable = false) // Nome da coluna no banco de dados
-    private String name; // Nome do pagamento
+    private String nmPayment; // Nome do pagamento
 
     @CreationTimestamp // Sempre que o registro for criado, vai ser atribuida data atual a variavel
     @Column(name = "DT_REGISTRATION", nullable = false)
-    private LocalDateTime registrationDate;
+    private LocalDateTime dtRegistration;
 
 
     @UpdateTimestamp // Sempre que o registro for atualizada, vai ser atribuida data atual a variavel
     @Column(name = "DT_UPDATE", nullable = false)
-    private LocalDateTime updateDate;
+    private LocalDateTime dtUpdate;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         PaymentModel that = (PaymentModel) o;
-        return id != null && Objects.equals(id, that.id);
+        return idPayment != null && Objects.equals(idPayment, that.idPayment);
     }
 
     @Override

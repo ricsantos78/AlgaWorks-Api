@@ -1,0 +1,1 @@
+alter table tb_restaurant add column ativo smallint not null default 1;

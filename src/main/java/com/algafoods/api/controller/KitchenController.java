@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,39 +38,37 @@ public class KitchenController {
         return kitchenFindByName.stream().map(kitchenModelAssembler::kitchenToModel).toList();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{cdKitchen}")
     @ResponseStatus(HttpStatus.OK)
-    public KitchenDto findById(@PathVariable UUID id){
-         var kitchenFindById = kitchenService.findById(id)
-                .orElseThrow(KitchenNotFoundException::new);
-        return kitchenModelAssembler.kitchenToModel(kitchenFindById);
+    public KitchenDto findById(@PathVariable Long cdKitchen){
+        return kitchenModelAssembler.kitchenToModel(kitchenService.findByCdKitchen(cdKitchen)
+                .orElseThrow(KitchenNotFoundException::new));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public KitchenDto save(@RequestBody @Valid KitchenInputDto kitchenInputDto){
-        var kitchenModel = kitchenModelDisassembler.kitchenModelDisassembler(kitchenInputDto);
+        return kitchenModelAssembler.kitchenToModel
+                (kitchenService.save(kitchenModelDisassembler.kitchenModelDisassembler(kitchenInputDto)));
+    }
+
+    @PutMapping("/{cdKitchen}")
+    @ResponseStatus(HttpStatus.OK)
+    public KitchenDto update(@PathVariable Long cdKitchen,
+                               @RequestBody @Valid KitchenInputDto kitchenInputDto){
+
+        var kitchenModel = kitchenService.findByCdKitchen(cdKitchen)
+                .orElseThrow(KitchenNotFoundException::new);
+
+        kitchenModelDisassembler.kitchenCopyToProperties(kitchenInputDto,kitchenModel);
         return kitchenModelAssembler.kitchenToModel(kitchenService.save(kitchenModel));
     }
 
-    @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public KitchenDto update(@PathVariable UUID id,
-                               @RequestBody @Valid KitchenInputDto kitchenInputDto){
-
-        var kitchenFindById = kitchenService.findById(id)
-                .orElseThrow(KitchenNotFoundException::new);
-
-        kitchenModelDisassembler.kitchenCopyToProperties(kitchenInputDto,kitchenFindById);
-        return kitchenModelAssembler.kitchenToModel(kitchenService.save(kitchenFindById));
-    }
-
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{cdKitchen}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID id){
-            var kitchenFindById = kitchenService.findById(id)
-                    .orElseThrow(KitchenNotFoundException::new);
-            kitchenService.delete(kitchenFindById);
+    public void delete(@PathVariable Long cdKitchen){
+            kitchenService.delete(kitchenService.findByCdKitchen(cdKitchen)
+                    .orElseThrow(KitchenNotFoundException::new));
     }
 
 }

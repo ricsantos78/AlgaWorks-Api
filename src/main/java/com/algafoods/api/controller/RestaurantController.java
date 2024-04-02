@@ -3,9 +3,10 @@ package com.algafoods.api.controller;
 import com.algafoods.api.assemblers.RestaurantModelAssembler;
 import com.algafoods.api.assemblers.RestaurantModelDisassembler;
 import com.algafoods.api.dto.RestaurantDto;
-import com.algafoods.api.dto.input.KitchenIdInput;
+import com.algafoods.api.dto.input.KitchenCdKitchenInput;
 import com.algafoods.api.dto.input.RestaurantInputDto;
 import com.algafoods.domain.exception.BusinessException;
+import com.algafoods.domain.exception.CityNotFoundException;
 import com.algafoods.domain.exception.KitchenNotFoundException;
 import com.algafoods.domain.exception.RestaurantNotFoundException;
 import com.algafoods.domain.model.RestaurantModel;
@@ -26,7 +27,6 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 @RequestMapping("restaurants")
@@ -49,10 +49,10 @@ public class RestaurantController {
         return restaurants.stream().map(restaurantModelAssembler::restaurantToModel).toList();
     }
 
-    @GetMapping("/{id}")
-    public RestaurantDto findById(@PathVariable UUID id) {
-        var restaurantFindById = restaurantService.findById(id).orElseThrow(RestaurantNotFoundException::new);
-        return restaurantModelAssembler.restaurantToModel(restaurantFindById);
+    @GetMapping("/{cdRestaurant}")
+    public RestaurantDto findById(@PathVariable Long cdRestaurant) {
+        return restaurantModelAssembler.restaurantToModel
+                (restaurantService.findByCdRestaurant(cdRestaurant).orElseThrow(RestaurantNotFoundException::new));
     }
 
     @PostMapping
@@ -61,53 +61,62 @@ public class RestaurantController {
             @RequestBody @Valid
             RestaurantInputDto restaurantInputDto) {
         try {
-            var restaurant = restaurantModelDisassembler.toDomainObject(restaurantInputDto);
-            return restaurantModelAssembler.restaurantToModel(restaurantService.save(restaurant));
-        }catch (KitchenNotFoundException e){
+            return restaurantModelAssembler.restaurantToModel
+                    (restaurantService.save(restaurantModelDisassembler.toDomainObject(restaurantInputDto)));
+        }catch (KitchenNotFoundException | CityNotFoundException e){
             throw new BusinessException(e.getMessage(), e);
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{cdRestaurant}")
     @ResponseStatus(HttpStatus.OK)
-    public RestaurantDto update(@PathVariable UUID id,
+    public RestaurantDto update(@PathVariable Long cdRestaurant,
                                     @RequestBody @Valid RestaurantInputDto restaurantInputDto) {
-        var restaurantFindById = restaurantService.findById(id)
+        var restaurantModel = restaurantService.findByCdRestaurant(cdRestaurant)
                 .orElseThrow(RestaurantNotFoundException::new);
             try{
-                restaurantModelDisassembler.copyToDomainObject(restaurantInputDto, restaurantFindById);
-                return restaurantModelAssembler.restaurantToModel(restaurantService.save(restaurantFindById));
-            }catch (KitchenNotFoundException e){
+                restaurantModelDisassembler.copyToDomainObject(restaurantInputDto, restaurantModel);
+                return restaurantModelAssembler.restaurantToModel(restaurantService.save(restaurantModel));
+            }catch (KitchenNotFoundException | CityNotFoundException e){
                 throw new BusinessException(e.getMessage(),e);
             }
 
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{cdRestaurant}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID id){
-            var restaurant = restaurantService.findById(id)
-                    .orElseThrow(RestaurantNotFoundException::new);
-
-            restaurantService.delete(restaurant);
+    public void delete(@PathVariable Long cdRestaurant){
+        restaurantService.delete(restaurantService.findByCdRestaurant(cdRestaurant).orElseThrow(RestaurantNotFoundException::new));
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/{cdRestaurant}")
     @ResponseStatus(HttpStatus.OK)
-    public RestaurantDto partiallyUpdate(@PathVariable UUID id
+    public RestaurantDto partiallyUpdate(@PathVariable Long cdRestaurant
     , @RequestBody Map<String, Object> fields, HttpServletRequest request){
 
-        var restaurant = restaurantService.findById(id)
+        var restaurantModel = restaurantService.findByCdRestaurant(cdRestaurant)
                 .orElseThrow(RestaurantNotFoundException::new);
 
-        merge(fields, restaurant,request);
+        merge(fields, restaurantModel,request);
         var restaurantInputDto = new RestaurantInputDto();
-        restaurantInputDto.setName(restaurant.getName());
-        restaurantInputDto.setFreight(restaurant.getFreight());
-        var kitchenInputDto = new KitchenIdInput();
-        kitchenInputDto.setId(restaurant.getKitchen().getId());
+        restaurantInputDto.setNmRestaurant(restaurantModel.getNmRestaurant());
+        restaurantInputDto.setValorFrete(restaurantModel.getVlFreight());
+        var kitchenInputDto = new KitchenCdKitchenInput();
+        kitchenInputDto.setCdKitchen(restaurantModel.getKitchen().getCdKitchen());
         restaurantInputDto.setKitchen(kitchenInputDto);
-        return update(id,restaurantInputDto);
+        return update(cdRestaurant,restaurantInputDto);
+    }
+
+    @PutMapping("/{cdRestaurant}/ativo")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void ativar(@PathVariable Long cdRestaurant){
+        restaurantService.ativar(cdRestaurant);
+    }
+
+    @DeleteMapping("/{cdRestaurant}/ativo")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void inativar(@PathVariable Long cdRestaurant){
+        restaurantService.inativar(cdRestaurant);
     }
 
     private void merge(

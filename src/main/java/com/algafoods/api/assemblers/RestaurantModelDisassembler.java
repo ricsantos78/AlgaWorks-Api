@@ -1,6 +1,7 @@
 package com.algafoods.api.assemblers;
 
 import com.algafoods.api.dto.input.RestaurantInputDto;
+import com.algafoods.domain.model.CityModel;
 import com.algafoods.domain.model.KitchenModel;
 import com.algafoods.domain.model.RestaurantModel;
 import org.modelmapper.ModelMapper;
@@ -25,6 +26,9 @@ public class RestaurantModelDisassembler {
         *Instanciando uma nova cozinha, evita erros como o de cima ao tentar alterar o A Cozinha do restaurante.
         */
         restaurantModel.setKitchen(new KitchenModel());
+        if(restaurantModel.getAddress() != null){
+            restaurantModel.getAddress().setCity(new CityModel());
+        }
         modelMapper.map(restaurantInputDto, restaurantModel);
     }
 }

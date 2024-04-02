@@ -28,26 +28,29 @@ public class StateModel implements Serializable {
     @Id // Chave primária
     @GeneratedValue(strategy = GenerationType.AUTO) // Gerador de chave primária
     @Column(name = "ID_STATE") // Nome da coluna no banco de dados
-    private UUID id;
+    private UUID idState;
+
+    @Column(name = "CD_STATE", nullable = false, unique = true) // Nome da coluna no banco de dados
+    private Long cdState; // Código do estado
 
     @Column(name = "NM_STATE", nullable = false) // Nome da coluna no banco de dados
-    private String name; // Nome do estado
+    private String nmState; // Nome do estado
 
     @CreationTimestamp // Sempre que o registro for criado, vai ser atribuida data atual a variavel
     @Column(name = "DT_REGISTRATION", nullable = false)
-    private LocalDateTime registrationDate;
+    private LocalDateTime dtRegistration;
 
 
     @UpdateTimestamp // Sempre que o registro for atualizada, vai ser atribuida data atual a variavel
     @Column(name = "DT_UPDATE", nullable = false)
-    private LocalDateTime updateDate;
+    private LocalDateTime dtUpdate;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         StateModel that = (StateModel) o;
-        return id != null && Objects.equals(id, that.id);
+        return idState != null && Objects.equals(idState, that.idState);
     }
 
     @Override

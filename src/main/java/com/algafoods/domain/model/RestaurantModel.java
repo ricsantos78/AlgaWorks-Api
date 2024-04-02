@@ -31,40 +31,43 @@ public class RestaurantModel implements Serializable {
     @Id // Chave primária
     @GeneratedValue(strategy = GenerationType.AUTO) // Gerador de chave primária
     @Column(name = "ID_RESTAURANT") // Nome da coluna no banco de dados
-    private UUID id;
+    private UUID idRestaurant; // Identificador do restaurante
 
+    @Column(name = "CD_RESTAURANT", nullable = false, unique = true) // Nome da coluna no banco de dados
+    private Long cdRestaurant; // Código do restaurante
 
     @Column(name = "NM_RESTAURANT", nullable = false) // Nome da coluna no banco de dados
-    private String name; // Nome do restaurante
+    private String nmRestaurant; // Nome do restaurante
 
 
     @Column(name = "VL_FREIGHT", nullable = false) // Nome da coluna no banco de dados
-    private BigDecimal freight; // Valor do frete
+    private BigDecimal vlFreight; // Valor do frete
 
     @ManyToOne() // Muitos restaurantes para uma cozinha
-    @JoinColumn(name = "ID_KITCHEN", nullable = false)
+    @JoinColumn(name = "CD_KITCHEN",referencedColumnName = "CD_KITCHEN", nullable = false)
     @ToString.Exclude // Nome da coluna no banco de dados
     private KitchenModel kitchen; // Cozinha do restaurante
 
 
     @CreationTimestamp // Sempre que o registro for criado, vai ser atribuida data atual a variavel
     @Column(name = "DT_REGISTRATION", nullable = false)
-    private LocalDateTime registrationDate;
+    private LocalDateTime dtRegistration;
 
 
     @UpdateTimestamp // Sempre que o registro for atualizada, vai ser atribuida data atual a variavel
     @Column(name = "DT_UPDATE", nullable = false)
-    private LocalDateTime updateDate;
+    private LocalDateTime dtUpdate;
 
 
     @Embedded
     private AddressModel address;
 
+    private Boolean ativo = Boolean.TRUE;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "TB_RESTAURANT_PAYMENT",
-    joinColumns = @JoinColumn(name = "ID_RESTAURANT"),
-    inverseJoinColumns = @JoinColumn(name = "ID_PAYMENT"))
+    joinColumns = @JoinColumn(name = "CD_RESTAURANT"),
+    inverseJoinColumns = @JoinColumn(name = "CD_PAYMENT"))
     @ToString.Exclude
     private List<PaymentModel> payments = new ArrayList<>();
 
@@ -73,12 +76,27 @@ public class RestaurantModel implements Serializable {
     @ToString.Exclude
     private List<ProductModel> product = new ArrayList<>();
 
+    public void ativar(){
+        setAtivo(true);
+    }
+    public void inativar(){
+        setAtivo(false);
+    }
+
+    public boolean removePayment(PaymentModel paymentModel){
+       return getPayments().remove(paymentModel);
+    }
+
+    public boolean addPayment(PaymentModel paymentModel){
+        return getPayments().add(paymentModel);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         RestaurantModel that = (RestaurantModel) o;
-        return id != null && Objects.equals(id, that.id);
+        return idRestaurant != null && Objects.equals(idRestaurant, that.idRestaurant);
     }
 
     @Override

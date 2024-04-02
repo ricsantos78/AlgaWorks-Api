@@ -28,28 +28,31 @@ public class UserModel implements Serializable {
     @Column(name = "ID_USER") // Nome da coluna no banco de dados
     private UUID id;
 
+    @Column(name = "CD_USER", nullable = false, unique = true) // Nome da coluna no banco de dados
+    private Long cdUser; // Código do usuário
+
     @Column(name = "NM_USER", nullable = false) // Nome da coluna no banco de dados
-    private String name; // Nome do usuário
+    private String nmUser; // Nome do usuário
 
     @Column(name = "DS_EMAIL", nullable = false) // Nome da coluna no banco de dados
-    private String email; // Email do usuário
+    private String dsEmail; // Email do usuário
 
     @Column(name = "DS_PASSWORD", nullable = false) // Nome da coluna no banco de dados
-    private String password; // Senha do usuário
+    private String dsPassword; // Senha do usuário
 
     @CreationTimestamp // Sempre que o registro for criado, vai ser atribuida data atual a variavel
     @Column(name = "DT_REGISTRATION", nullable = false)
-    private LocalDateTime registrationDate;
+    private LocalDateTime dtRegistration;
 
 
     @UpdateTimestamp // Sempre que o registro for atualizada, vai ser atribuida data atual a variavel
     @Column(name = "DT_UPDATE", nullable = false)
-    private LocalDateTime updateDate;
+    private LocalDateTime dtUpdate;
 
     @ManyToMany
     @JoinTable(name = "TB_USER_GROUP",
-            joinColumns = @JoinColumn(name = "ID_USER", referencedColumnName = "ID_USER"),
-            inverseJoinColumns = @JoinColumn(name = "ID_GROUP", referencedColumnName = "ID_GROUP"))
+            joinColumns = @JoinColumn(name = "CD_USER", referencedColumnName = "ID_USER"),
+            inverseJoinColumns = @JoinColumn(name = "CD_GROUP", referencedColumnName = "ID_GROUP"))
     @ToString.Exclude//sera criado uma nova tabela criando um relacionamento de n/n com user e role.
     private List<GroupModel> group;
 
@@ -65,4 +68,17 @@ public class UserModel implements Serializable {
     public int hashCode() {
         return getClass().hashCode();
     }
+
+    public boolean senhaCoincideCom(String senha) {
+        return getDsPassword().equals(senha);
+    }
+
+    public boolean senhaNaoCoincideCom(String senha) {
+        return !senhaCoincideCom(senha);
+    }
+
+    public boolean senhaAtualCoincideComNovaSenha(String senha) {
+        return getDsPassword().equals(senha);
+    }
+
 }

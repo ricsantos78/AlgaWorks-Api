@@ -2,15 +2,14 @@ package com.algafoods.domain.service.impl;
 
 import com.algafoods.domain.exception.EntityInUseException;
 import com.algafoods.domain.model.KitchenModel;
-import com.algafoods.infra.repository.KitchenRepository;
 import com.algafoods.domain.service.KitchenService;
+import com.algafoods.infra.repository.KitchenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +19,9 @@ public class KitchenServiceImpl implements KitchenService {
 
     @Override
     public KitchenModel save(KitchenModel kitchenModel) {
+        if(kitchenModel.getCdKitchen() == null){
+            kitchenModel.setCdKitchen(findMaxKitchen());
+        }
         return kitchenRepository.save(kitchenModel);
     }
 
@@ -29,8 +31,8 @@ public class KitchenServiceImpl implements KitchenService {
     }
 
     @Override
-    public Optional<KitchenModel> findById(UUID id) {
-        return kitchenRepository.findById(id);
+    public Optional<KitchenModel> findByCdKitchen(Long cdKitchen) {
+        return kitchenRepository.findByCdKitchen(cdKitchen);
     }
 
     @Override
@@ -40,7 +42,7 @@ public class KitchenServiceImpl implements KitchenService {
         }catch (DataIntegrityViolationException e){
             throw new EntityInUseException(
                     String.format("Cozinha %s não pode ser removida, pois esta em uso"
-                            , kitchenModel.getName())
+                            , kitchenModel.getNmKitchen())
             );
         }
 
@@ -48,6 +50,11 @@ public class KitchenServiceImpl implements KitchenService {
 
     @Override
     public List<KitchenModel> findByName(String name) {
-        return kitchenRepository.findByNameContaining(name);
+        return kitchenRepository.findByNmKitchenContaining(name);
+    }
+
+    public Long findMaxKitchen(){
+        var maxCdKitchen = kitchenRepository.findMaxCdKitchen();
+        return maxCdKitchen != null ? maxCdKitchen + 1 : 1;
     }
 }

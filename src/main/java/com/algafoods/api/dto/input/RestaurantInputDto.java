@@ -12,13 +12,18 @@ import java.math.BigDecimal;
 public class RestaurantInputDto {
 
     @NotBlank
-    private String name;
+    @NotNull
+    private String nmRestaurant;
 
     @PositiveOrZero
     @NotNull
-    private BigDecimal freight;
+    private BigDecimal valorFrete;
 
     @Valid
     @NotNull
-    private KitchenIdInput kitchen;
+    private KitchenCdKitchenInput kitchen;
+
+    @Valid
+    @NotNull
+    private AddressInputDto address;
 }

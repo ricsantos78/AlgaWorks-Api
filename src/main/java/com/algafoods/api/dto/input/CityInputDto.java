@@ -10,9 +10,10 @@ import javax.validation.constraints.NotNull;
 public class CityInputDto {
 
     @NotBlank
-    private String name;
+    @NotNull
+    private String nmCity;
 
     @Valid
     @NotNull
-    private StateIdInput state;
+    private StateCdStateInput state;
 }

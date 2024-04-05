@@ -20,23 +20,24 @@ public class RestaurantPaymentsController {
     private final PaymentModelAssembler paymentModelAssembler;
 
     @GetMapping
-    public List<PaymentDto> list(@PathVariable Long cdRestaurant){
+    @ResponseStatus(HttpStatus.OK)
+    public List<PaymentDto> findAllPaymentsByCdRestaurant(@PathVariable Long cdRestaurant){
         var restaurantModel = restaurantService.findByCdRestaurant(cdRestaurant)
                 .orElseThrow(RestaurantNotFoundException::new);
 
-        return restaurantModel.getPayments().stream().map(paymentModelAssembler::paymentToModel).toList();
+        return restaurantModel.getPayments().stream().map(paymentModelAssembler::paymentModelToPaymentDto).toList();
     }
 
     @DeleteMapping("/{cdPayment}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeRestaurantPayment(@PathVariable Long cdRestaurant,
+    public void associateRestaurantWithPayment(@PathVariable Long cdRestaurant,
                                         @PathVariable Long cdPayment){
         restaurantService.removePayments(cdRestaurant,cdPayment);
     }
 
     @PutMapping("/{cdPayment}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void addRestaurantPayment(@PathVariable Long cdRestaurant,
+    public void disassociateRestaurantWithPayment(@PathVariable Long cdRestaurant,
                                         @PathVariable Long cdPayment){
         restaurantService.addPayments(cdRestaurant,cdPayment);
     }

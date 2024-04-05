@@ -62,12 +62,13 @@ public class RestaurantModel implements Serializable {
     @Embedded
     private AddressModel address;
 
-    private Boolean ativo = Boolean.TRUE;
+    @Column(name= "VL_STATUS")
+    private Boolean vlStatus = Boolean.TRUE;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "TB_RESTAURANT_PAYMENT",
-    joinColumns = @JoinColumn(name = "CD_RESTAURANT"),
-    inverseJoinColumns = @JoinColumn(name = "CD_PAYMENT"))
+    joinColumns = @JoinColumn(name = "CD_RESTAURANT", referencedColumnName = "CD_RESTAURANT"),
+    inverseJoinColumns = @JoinColumn(name = "CD_PAYMENT", referencedColumnName = "CD_PAYMENT"))
     @ToString.Exclude
     private List<PaymentModel> payments = new ArrayList<>();
 
@@ -76,19 +77,19 @@ public class RestaurantModel implements Serializable {
     @ToString.Exclude
     private List<ProductModel> product = new ArrayList<>();
 
-    public void ativar(){
-        setAtivo(true);
+    public void activate(){
+        setVlStatus(Boolean.TRUE);
     }
-    public void inativar(){
-        setAtivo(false);
-    }
-
-    public boolean removePayment(PaymentModel paymentModel){
-       return getPayments().remove(paymentModel);
+    public void inactivate(){
+        setVlStatus(Boolean.FALSE);
     }
 
-    public boolean addPayment(PaymentModel paymentModel){
-        return getPayments().add(paymentModel);
+    public void removePayment(PaymentModel paymentModel){
+        getPayments().remove(paymentModel);
+    }
+
+    public void addPayment(PaymentModel paymentModel){
+         getPayments().add(paymentModel);
     }
 
     @Override

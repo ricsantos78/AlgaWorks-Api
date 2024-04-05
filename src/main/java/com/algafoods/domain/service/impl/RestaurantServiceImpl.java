@@ -94,16 +94,16 @@ public class RestaurantServiceImpl implements RestaurantService {
     }
 
     @Override
-    public void ativar(Long cdRestaurant) {
+    public void activate(Long cdRestaurant) {
         var restaurantModel = findByCdRestaurant(cdRestaurant).orElseThrow(RestaurantNotFoundException::new);
-        restaurantModel.ativar();
+        restaurantModel.activate();
         restaurantRepository.save(restaurantModel);
     }
 
     @Override
-    public void inativar(Long cdRestaurant) {
+    public void inactivate(Long cdRestaurant) {
         var restaurantModel = findByCdRestaurant(cdRestaurant).orElseThrow(RestaurantNotFoundException::new);
-        restaurantModel.inativar();
+        restaurantModel.inactivate();
         restaurantRepository.save(restaurantModel);
     }
 

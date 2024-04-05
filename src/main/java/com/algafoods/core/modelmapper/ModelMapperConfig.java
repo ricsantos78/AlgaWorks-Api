@@ -20,7 +20,7 @@ public class ModelMapperConfig {
                 .addMapping(RestaurantModel::getVlFreight, RestaurantDto::setValorFrete);
 
         modelMapper.createTypeMap(RestaurantModel.class, RestaurantInputDto.class)
-                .addMapping(RestaurantModel::getVlFreight, RestaurantInputDto::setValorFrete);
+                .addMapping(RestaurantModel::getVlFreight, RestaurantInputDto::setVlFreight);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         return modelMapper;

@@ -25,14 +25,16 @@ public class GroupController {
     private final GroupModelDisassembler groupModelDisassembler;
 
     @GetMapping
-    public List<GroupDto> listAll(){
+    @ResponseStatus(HttpStatus.OK)
+    public List<GroupDto> findAll(){
         var groupModel = groupService.findAll();
-        return groupModel.stream().map(groupModelAssembler::groupToModel).toList();
+        return groupModel.stream().map(groupModelAssembler::groupModelToGroupDto).toList();
     }
 
     @GetMapping("/{cdGroup}")
-    public GroupDto findById(@PathVariable Long cdGroup){
-        return groupModelAssembler.groupToModel
+    @ResponseStatus(HttpStatus.OK)
+    public GroupDto findByCdGroup(@PathVariable Long cdGroup){
+        return groupModelAssembler.groupModelToGroupDto
                 (groupService.findByCdGroup(cdGroup).orElseThrow(GroupNotFoundException::new));
     }
 
@@ -40,8 +42,8 @@ public class GroupController {
     @ResponseStatus(HttpStatus.CREATED)
     public GroupDto save(@RequestBody @Valid GroupInputDto groupInputDto){
 
-        return groupModelAssembler.groupToModel
-                (groupService.save(groupModelDisassembler.groupToDisassemblerModel(groupInputDto)));
+        return groupModelAssembler.groupModelToGroupDto
+                (groupService.save(groupModelDisassembler.groupInputDtoToGroupModel(groupInputDto)));
 
     }
 
@@ -50,8 +52,8 @@ public class GroupController {
                            @RequestBody @Valid GroupInputDto groupInputDto){
         var groupModel = groupService.findByCdGroup(cdGroup).orElseThrow(GroupNotFoundException::new);
 
-        groupModelDisassembler.groupToConverter(groupModel, groupInputDto);
-        return groupModelAssembler.groupToModel(groupService.save(groupModel));
+        groupModelDisassembler.groupCopyToProperties(groupInputDto,groupModel);
+        return groupModelAssembler.groupModelToGroupDto(groupService.save(groupModel));
     }
 
     @DeleteMapping("/{cdGroup}")

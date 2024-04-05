@@ -44,7 +44,7 @@ public class ProductModel implements Serializable {
     private BigDecimal vlPrice; // Valor do produto
 
     @Column(name = "VL_STATUS", nullable = false)
-    private Boolean vlStatus = Boolean.TRUE;
+    private Boolean vlStatus = Boolean.FALSE;
 
     @CreationTimestamp // Sempre que o registro for criado, vai ser atribuida data atual a variavel
     @Column(name = "DT_REGISTRATION", nullable = false)
@@ -70,5 +70,13 @@ public class ProductModel implements Serializable {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    public void activate(){
+        setVlStatus(Boolean.TRUE);
+    }
+
+    public void inactivate(){
+        setVlStatus(Boolean.FALSE);
     }
 }

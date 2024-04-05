@@ -51,8 +51,8 @@ public class UserModel implements Serializable {
 
     @ManyToMany
     @JoinTable(name = "TB_USER_GROUP",
-            joinColumns = @JoinColumn(name = "CD_USER", referencedColumnName = "ID_USER"),
-            inverseJoinColumns = @JoinColumn(name = "CD_GROUP", referencedColumnName = "ID_GROUP"))
+            joinColumns = @JoinColumn(name = "CD_USER", referencedColumnName = "CD_USER"),
+            inverseJoinColumns = @JoinColumn(name = "CD_GROUP", referencedColumnName = "CD_GROUP"))
     @ToString.Exclude//sera criado uma nova tabela criando um relacionamento de n/n com user e role.
     private List<GroupModel> group;
 

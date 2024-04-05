@@ -27,14 +27,16 @@ public class CityController {
     private final CityModelDisassembler cityModelDisassembler;
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public List<CityDto> findAll(){
         var cityModel = cityService.findAll();
-        return cityModel.stream().map(cityModelAssembler::cityToModel).toList();
+        return cityModel.stream().map(cityModelAssembler::cityModelToCityDto).toList();
     }
 
     @GetMapping("/{cdCity}")
-    public CityDto findById(@PathVariable Long cdCity){
-        return cityModelAssembler.cityToModel(cityService.findByCdCity(cdCity)
+    @ResponseStatus(HttpStatus.OK)
+    public CityDto findByCdCity(@PathVariable Long cdCity){
+        return cityModelAssembler.cityModelToCityDto(cityService.findByCdCity(cdCity)
                 .orElseThrow(CityNotFoundException::new));
     }
 
@@ -42,7 +44,9 @@ public class CityController {
     @ResponseStatus(HttpStatus.CREATED)
     public CityDto save(@RequestBody @Valid CityInputDto cityInputDto){
             try{
-                return cityModelAssembler.cityToModel(cityService.save(cityModelDisassembler.cityModelToDisassembler(cityInputDto)));
+                return cityModelAssembler.cityModelToCityDto(
+                        cityService.save(
+                                cityModelDisassembler.cityInputDtoToCityModel(cityInputDto)));
             }catch (StateNotFoundException e){
                 throw new BusinessException(e.getMessage(), e);
             }
@@ -56,7 +60,7 @@ public class CityController {
                 .orElseThrow(CityNotFoundException::new);
         try {
             cityModelDisassembler.cityCopyToProperties(cityInputDto,cityModel);
-            return cityModelAssembler.cityToModel(cityService.save(cityModel));
+            return cityModelAssembler.cityModelToCityDto(cityService.save(cityModel));
         }catch (StateNotFoundException e){
             throw new BusinessException(e.getMessage(), e);
         }

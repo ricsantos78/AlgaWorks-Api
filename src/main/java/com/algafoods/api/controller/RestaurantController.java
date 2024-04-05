@@ -3,8 +3,7 @@ package com.algafoods.api.controller;
 import com.algafoods.api.assemblers.RestaurantModelAssembler;
 import com.algafoods.api.assemblers.RestaurantModelDisassembler;
 import com.algafoods.api.dto.RestaurantDto;
-import com.algafoods.api.dto.input.KitchenCdKitchenInput;
-import com.algafoods.api.dto.input.RestaurantInputDto;
+import com.algafoods.api.dto.input.*;
 import com.algafoods.domain.exception.BusinessException;
 import com.algafoods.domain.exception.CityNotFoundException;
 import com.algafoods.domain.exception.KitchenNotFoundException;
@@ -29,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
-@RequestMapping("restaurants")
+@RequestMapping("/restaurants")
 @RestController
 public class RestaurantController {
 
@@ -38,20 +37,22 @@ public class RestaurantController {
     private final RestaurantModelDisassembler restaurantModelDisassembler;
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public List<RestaurantDto> findAll() {
         var restaurants = restaurantService.findAll();
-        return restaurants.stream().map(restaurantModelAssembler::restaurantToModel).toList();
+        return restaurants.stream().map(restaurantModelAssembler::restaurantModelToRestaurantDto).toList();
     }
 
     @GetMapping("/per-rate")
+    @ResponseStatus(HttpStatus.OK)
     public List<RestaurantDto> findByFreightBetween(BigDecimal initialRate, BigDecimal finalRate) {
          var restaurants = restaurantService.findByFreightBetween(initialRate,finalRate);
-        return restaurants.stream().map(restaurantModelAssembler::restaurantToModel).toList();
+        return restaurants.stream().map(restaurantModelAssembler::restaurantModelToRestaurantDto).toList();
     }
 
     @GetMapping("/{cdRestaurant}")
-    public RestaurantDto findById(@PathVariable Long cdRestaurant) {
-        return restaurantModelAssembler.restaurantToModel
+    public RestaurantDto findByCdRestaurant(@PathVariable Long cdRestaurant) {
+        return restaurantModelAssembler.restaurantModelToRestaurantDto
                 (restaurantService.findByCdRestaurant(cdRestaurant).orElseThrow(RestaurantNotFoundException::new));
     }
 
@@ -61,8 +62,8 @@ public class RestaurantController {
             @RequestBody @Valid
             RestaurantInputDto restaurantInputDto) {
         try {
-            return restaurantModelAssembler.restaurantToModel
-                    (restaurantService.save(restaurantModelDisassembler.toDomainObject(restaurantInputDto)));
+            return restaurantModelAssembler.restaurantModelToRestaurantDto
+                    (restaurantService.save(restaurantModelDisassembler.restaurantInputDtoToRestaurantModel(restaurantInputDto)));
         }catch (KitchenNotFoundException | CityNotFoundException e){
             throw new BusinessException(e.getMessage(), e);
         }
@@ -75,8 +76,8 @@ public class RestaurantController {
         var restaurantModel = restaurantService.findByCdRestaurant(cdRestaurant)
                 .orElseThrow(RestaurantNotFoundException::new);
             try{
-                restaurantModelDisassembler.copyToDomainObject(restaurantInputDto, restaurantModel);
-                return restaurantModelAssembler.restaurantToModel(restaurantService.save(restaurantModel));
+                restaurantModelDisassembler.restaurantCopyToProperties(restaurantInputDto, restaurantModel);
+                return restaurantModelAssembler.restaurantModelToRestaurantDto(restaurantService.save(restaurantModel));
             }catch (KitchenNotFoundException | CityNotFoundException e){
                 throw new BusinessException(e.getMessage(),e);
             }
@@ -100,23 +101,33 @@ public class RestaurantController {
         merge(fields, restaurantModel,request);
         var restaurantInputDto = new RestaurantInputDto();
         restaurantInputDto.setNmRestaurant(restaurantModel.getNmRestaurant());
-        restaurantInputDto.setValorFrete(restaurantModel.getVlFreight());
+        restaurantInputDto.setVlFreight(restaurantModel.getVlFreight());
         var kitchenInputDto = new KitchenCdKitchenInput();
         kitchenInputDto.setCdKitchen(restaurantModel.getKitchen().getCdKitchen());
         restaurantInputDto.setKitchen(kitchenInputDto);
+        var addressInputDto = new AddressInputDto();
+        addressInputDto.setCep(restaurantModel.getAddress().getCep());
+        addressInputDto.setPublicPlace(restaurantModel.getAddress().getPublicPlace());
+        addressInputDto.setNumber(restaurantModel.getAddress().getNumber());
+        addressInputDto.setComplement(restaurantModel.getAddress().getComplement());
+        addressInputDto.setDistrict(restaurantModel.getAddress().getDistrict());
+        var addressCdCityInput = new AddressCdCityInput();
+        addressCdCityInput.setCdCity(restaurantModel.getAddress().getCity().getCdCity());
+        addressInputDto.setCity(addressCdCityInput);
+        restaurantInputDto.setAddress(addressInputDto);
         return update(cdRestaurant,restaurantInputDto);
     }
 
-    @PutMapping("/{cdRestaurant}/ativo")
+    @PutMapping("/{cdRestaurant}/activate")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void ativar(@PathVariable Long cdRestaurant){
-        restaurantService.ativar(cdRestaurant);
+    public void activate(@PathVariable Long cdRestaurant){
+        restaurantService.activate(cdRestaurant);
     }
 
-    @DeleteMapping("/{cdRestaurant}/ativo")
+    @DeleteMapping("/{cdRestaurant}/inactivate")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void inativar(@PathVariable Long cdRestaurant){
-        restaurantService.inativar(cdRestaurant);
+    public void inactivate(@PathVariable Long cdRestaurant){
+        restaurantService.inactivate(cdRestaurant);
     }
 
     private void merge(

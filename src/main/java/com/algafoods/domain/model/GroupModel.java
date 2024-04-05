@@ -38,8 +38,8 @@ public class GroupModel implements Serializable {
 
     @ManyToMany
     @JoinTable(name = "TB_GROUP_PERMISSION",
-    joinColumns = @JoinColumn(name = "CD_GROUP"),
-    inverseJoinColumns = @JoinColumn(name = "CD_PERMISSION"))
+    joinColumns = @JoinColumn(name = "CD_GROUP", referencedColumnName = "CD_GROUP"),
+    inverseJoinColumns = @JoinColumn(name = "CD_PERMISSION" , referencedColumnName = "CD_PERMISSION"))
     @ToString.Exclude
     private List<PermissionModel> permissions = new ArrayList<>();
 

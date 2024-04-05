@@ -29,9 +29,9 @@ public interface RestaurantService {
 
     List<RestaurantModel> findAll(Specification<RestaurantModel> name);
 
-    void ativar(Long cdRestaurant);
+    void activate(Long cdRestaurant);
 
-    void inativar(Long cdRestaurant);
+    void inactivate(Long cdRestaurant);
 
     void removePayments(Long cdRestaurant, Long cdPayment);
 

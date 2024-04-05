@@ -28,21 +28,21 @@ public class StateController {
     @ResponseStatus(HttpStatus.OK)
     public List<StateDto> findAll() {
         var stateModel = stateService.findAll();
-        return stateModel.stream().map(stateModelAssembler::stateToModel).toList();
+        return stateModel.stream().map(stateModelAssembler::stateModelToStateDto).toList();
     }
 
     @GetMapping("/{cdState}")
     @ResponseStatus(HttpStatus.OK)
-    public StateDto findById(@PathVariable Long cdState) {
-        return stateModelAssembler.stateToModel(stateService.findByCdState(cdState)
+    public StateDto findByCdState(@PathVariable Long cdState) {
+        return stateModelAssembler.stateModelToStateDto(stateService.findByCdState(cdState)
                 .orElseThrow(StateNotFoundException::new));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public StateDto save(@RequestBody @Valid StateInputDto stateInputDto) {
-        return stateModelAssembler.stateToModel
-                (stateService.save(stateModelDisassembler.stateToDisassemblerModel(stateInputDto)));
+        return stateModelAssembler.stateModelToStateDto
+                (stateService.save(stateModelDisassembler.stateInputDtoToStateModel(stateInputDto)));
     }
 
     @PutMapping("/{cdState}")
@@ -53,7 +53,7 @@ public class StateController {
                 .orElseThrow(StateNotFoundException::new);
 
         stateModelDisassembler.stateCopyToProperties(stateInputDto,stateFindById);
-        return stateModelAssembler.stateToModel(stateService.save(stateFindById));
+        return stateModelAssembler.stateModelToStateDto(stateService.save(stateFindById));
     }
 
     @DeleteMapping("/{cdState}")

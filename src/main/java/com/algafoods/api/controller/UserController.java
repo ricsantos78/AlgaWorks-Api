@@ -28,30 +28,33 @@ public class UserController {
     private final UserModelDisassembler userModelDisassembler;
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public List<UserDto> findAll() {
         var userModel = userService.findAll();
-        return userModel.stream().map(userModelAssembler::userDtoToModelAssembler).toList();
+        return userModel.stream().map(userModelAssembler::userModelToUserDto).toList();
     }
 
     @GetMapping("/{cdUser}")
-    public UserDto findById(@PathVariable Long cdUser) {
-        return userModelAssembler.userDtoToModelAssembler
+    @ResponseStatus(HttpStatus.OK)
+    public UserDto findByCdUser(@PathVariable Long cdUser) {
+        return userModelAssembler.userModelToUserDto
                 (userService.findByCdUser(cdUser).orElseThrow(UserNotFoundException::new));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto save(@RequestBody @Valid UserInputDto userInputDto) {
-        return userModelAssembler.userDtoToModelAssembler
-                (userService.save(userModelDisassembler.userModelToDisassembler(userInputDto)));
+        return userModelAssembler.userModelToUserDto
+                (userService.save(userModelDisassembler.userInputDtoToUserModel(userInputDto)));
     }
 
     @PutMapping("/{cdUser}")
+    @ResponseStatus(HttpStatus.OK)
     public UserDto update(@PathVariable Long cdUser,
                           @RequestBody @Valid UserUpdateDto userUpdateDto) {
         var userModel = userService.findByCdUser(cdUser).orElseThrow(UserNotFoundException::new);
-        userModelDisassembler.userToConverter(userModel, userUpdateDto);
-        return userModelAssembler.userDtoToModelAssembler(userService.save(userModel));
+        userModelDisassembler.userCopyToProperties(userModel, userUpdateDto);
+        return userModelAssembler.userModelToUserDto(userService.save(userModel));
     }
 
     @PutMapping("/{cdUser}/updatePassword")
@@ -70,6 +73,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{cdUser}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long cdUser){
         var userModel = userService.findByCdUser(cdUser)
                 .orElseThrow(UserNotFoundException::new);

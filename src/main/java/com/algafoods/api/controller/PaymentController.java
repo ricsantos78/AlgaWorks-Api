@@ -14,7 +14,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RequiredArgsConstructor
-@RequestMapping("payments")
+@RequestMapping("/payments")
 @RestController
 public class PaymentController {
 
@@ -27,20 +27,20 @@ public class PaymentController {
     @GetMapping
     public List<PaymentDto> findAll(){
         var payments = paymentsService.findAll();
-        return payments.stream().map(paymentModelAssembler::paymentToModel).toList();
+        return payments.stream().map(paymentModelAssembler::paymentModelToPaymentDto).toList();
     }
 
     @GetMapping("/{cdPayment}")
-    public PaymentDto findById(@PathVariable Long cdPayment){
-        return paymentModelAssembler.paymentToModel(paymentsService.findByCdPayment(cdPayment).orElseThrow
+    public PaymentDto findByCdPayment(@PathVariable Long cdPayment){
+        return paymentModelAssembler.paymentModelToPaymentDto(paymentsService.findByCdPayment(cdPayment).orElseThrow
                 (PaymentNotFoundException::new));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PaymentDto save(@RequestBody @Valid PaymentInputDto paymentInputDto){
-        return paymentModelAssembler.paymentToModel
-                (paymentsService.save(paymentModelDisassembler.paymentToDisassemblerModel(paymentInputDto)));
+        return paymentModelAssembler.paymentModelToPaymentDto
+                (paymentsService.save(paymentModelDisassembler.paymentInputDtoToPaymentModel(paymentInputDto)));
     }
 
     @PutMapping("/{cdPayment}")
@@ -49,8 +49,8 @@ public class PaymentController {
                              @RequestBody @Valid PaymentInputDto paymentInputDto){
         var paymentModel = paymentsService.findByCdPayment(cdPayment).orElseThrow(PaymentNotFoundException::new);
 
-            paymentModelDisassembler.toCopyProperty(paymentInputDto, paymentModel);
-            return paymentModelAssembler.paymentToModel(paymentsService.save(paymentModel));
+            paymentModelDisassembler.paymentCopyToProperties(paymentInputDto, paymentModel);
+            return paymentModelAssembler.paymentModelToPaymentDto(paymentsService.save(paymentModel));
     }
     @DeleteMapping("/{cdPayment}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

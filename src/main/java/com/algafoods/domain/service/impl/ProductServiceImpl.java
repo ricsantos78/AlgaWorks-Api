@@ -1,5 +1,7 @@
 package com.algafoods.domain.service.impl;
 
+import com.algafoods.domain.exception.BusinessException;
+import com.algafoods.domain.exception.ProductNotFoundException;
 import com.algafoods.domain.exception.RestaurantNotFoundException;
 import com.algafoods.domain.model.ProductModel;
 import com.algafoods.domain.service.ProductService;
@@ -8,6 +10,7 @@ import com.algafoods.infra.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -22,12 +25,40 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Optional<ProductModel> findByCdRestaurant(Long cdRestaurant, Long cdProduct) {
 
-        var restaurantModel = restaurantService.findByCdRestaurant(cdRestaurant);
+        var restaurantModel = restaurantService.findByCdRestaurant(cdRestaurant)
+                .orElseThrow(RestaurantNotFoundException::new);
 
-        if (restaurantModel.isEmpty()){
-             throw new RestaurantNotFoundException();
+        var productModel = productRepository.findByCdProduct(cdProduct)
+                .orElseThrow(ProductNotFoundException::new);
+
+           return productRepository.findByCdProductAndRestaurant(productModel.getCdProduct(),restaurantModel);
+    }
+
+    @Override
+    public List<ProductModel> findAll() {
+        return productRepository.findAll();
+    }
+
+    @Override
+    public Optional<ProductModel> findByCdProduct(Long cdProduct) {
+        return productRepository.findByCdProduct(cdProduct);
+    }
+
+    @Override
+    public ProductModel save(ProductModel productModel) {
+        if (productModel.getCdProduct() == null) {
+            productModel.setCdProduct(findMaxCdProduct());
         }
+            return productRepository.save(productModel);
+    }
 
-        return productRepository.findByCdProductAndRestaurant(cdProduct,restaurantModel.get());
+    @Override
+    public void delete(ProductModel productModel) {
+        productRepository.delete(productModel);
+    }
+
+    public Long findMaxCdProduct(){
+        var maxCdProduct = productRepository.findMaxCdProduct();
+        return maxCdProduct != null ? maxCdProduct + 1 : 1;
     }
 }

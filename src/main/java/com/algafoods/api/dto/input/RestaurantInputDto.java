@@ -17,7 +17,7 @@ public class RestaurantInputDto {
 
     @PositiveOrZero
     @NotNull
-    private BigDecimal valorFrete;
+    private BigDecimal vlFreight;
 
     @Valid
     @NotNull

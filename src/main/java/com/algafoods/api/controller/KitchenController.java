@@ -28,28 +28,28 @@ public class KitchenController {
     @ResponseStatus(HttpStatus.OK)
     public List<KitchenDto> findAll(){
         var kitchenFindAll = kitchenService.findAll();
-        return kitchenFindAll.stream().map(kitchenModelAssembler::kitchenToModel).toList();
+        return kitchenFindAll.stream().map(kitchenModelAssembler::kitchenModelToKitchenDto).toList();
     }
 
     @GetMapping("/per-name")
     @ResponseStatus(HttpStatus.OK)
     public List<KitchenDto> findKitchenByName(String name){
         var kitchenFindByName = kitchenService.findByName(name);
-        return kitchenFindByName.stream().map(kitchenModelAssembler::kitchenToModel).toList();
+        return kitchenFindByName.stream().map(kitchenModelAssembler::kitchenModelToKitchenDto).toList();
     }
 
     @GetMapping("/{cdKitchen}")
     @ResponseStatus(HttpStatus.OK)
-    public KitchenDto findById(@PathVariable Long cdKitchen){
-        return kitchenModelAssembler.kitchenToModel(kitchenService.findByCdKitchen(cdKitchen)
+    public KitchenDto findByCdKitchen(@PathVariable Long cdKitchen){
+        return kitchenModelAssembler.kitchenModelToKitchenDto(kitchenService.findByCdKitchen(cdKitchen)
                 .orElseThrow(KitchenNotFoundException::new));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public KitchenDto save(@RequestBody @Valid KitchenInputDto kitchenInputDto){
-        return kitchenModelAssembler.kitchenToModel
-                (kitchenService.save(kitchenModelDisassembler.kitchenModelDisassembler(kitchenInputDto)));
+        return kitchenModelAssembler.kitchenModelToKitchenDto
+                (kitchenService.save(kitchenModelDisassembler.kitchenInputDtoToKitchenModel(kitchenInputDto)));
     }
 
     @PutMapping("/{cdKitchen}")
@@ -61,7 +61,7 @@ public class KitchenController {
                 .orElseThrow(KitchenNotFoundException::new);
 
         kitchenModelDisassembler.kitchenCopyToProperties(kitchenInputDto,kitchenModel);
-        return kitchenModelAssembler.kitchenToModel(kitchenService.save(kitchenModel));
+        return kitchenModelAssembler.kitchenModelToKitchenDto(kitchenService.save(kitchenModel));
     }
 
     @DeleteMapping("/{cdKitchen}")

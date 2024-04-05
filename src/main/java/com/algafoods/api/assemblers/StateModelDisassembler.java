@@ -2,19 +2,17 @@ package com.algafoods.api.assemblers;
 
 import com.algafoods.api.dto.input.StateInputDto;
 import com.algafoods.domain.model.StateModel;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class StateModelDisassembler {
 
     private final ModelMapper modelMapper;
 
-    public StateModelDisassembler(ModelMapper modelMapper) {
-        this.modelMapper = modelMapper;
-    }
-
-    public StateModel stateToDisassemblerModel(StateInputDto stateInputDto){
+    public StateModel stateInputDtoToStateModel(StateInputDto stateInputDto){
         return modelMapper.map(stateInputDto, StateModel.class);
     }
 

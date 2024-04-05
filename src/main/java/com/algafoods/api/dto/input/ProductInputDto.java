@@ -19,7 +19,6 @@ public class ProductInputDto {
     private String nmDescription;
 
     @NonNull
-    @NotBlank
     @PositiveOrZero
     private BigDecimal vlPrice;
 
